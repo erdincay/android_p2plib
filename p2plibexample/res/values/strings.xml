@@ -1,0 +1,7 @@
+<resources>
+
+    <string name="app_name">p2plibexample</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">P2P example</string>
+
+</resources>
