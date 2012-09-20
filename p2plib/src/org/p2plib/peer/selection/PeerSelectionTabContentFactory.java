@@ -24,6 +24,10 @@ public class PeerSelectionTabContentFactory implements TabContentFactory {
 			view = new BluetoothPeerSelectionList(context, targetComponent);
 			break;
 
+		case PeerConnectionTechnology.WIFI_DIRECT:
+			view = new WiFiDirectPeerSelectionList(context, targetComponent);
+			break;
+
 		default:
 			view = new View(context);
 			break;

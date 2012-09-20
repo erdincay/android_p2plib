@@ -59,6 +59,16 @@ public class PeerSelectionFragment extends Fragment {
 			tabHost.addTab(bluetoothTabSpec);
 		}
 
+		if (PeerConnectionTechnology.isEnabled(enabledConnectionTechnologies,
+				PeerConnectionTechnology.WIFI_DIRECT)) {
+			TabSpec bluetoothTabSpec = tabHost.newTabSpec(String
+					.valueOf(PeerConnectionTechnology.WIFI_DIRECT));
+			bluetoothTabSpec.setIndicator(getString(PeerConnectionTechnology
+					.getStringId(PeerConnectionTechnology.WIFI_DIRECT)));
+			bluetoothTabSpec.setContent(tabContentFactory);
+			tabHost.addTab(bluetoothTabSpec);
+		}
+
 		return view;
 	}
 }
