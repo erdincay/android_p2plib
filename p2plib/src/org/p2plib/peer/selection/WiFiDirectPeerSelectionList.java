@@ -1,6 +1,7 @@
 package org.p2plib.peer.selection;
 
 import org.p2plib.R;
+import org.p2plib.util.Lifecycle;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -12,7 +13,7 @@ public class WiFiDirectPeerSelectionList extends FrameLayout {
 	private Activity context;
 	private String targetComponent;
 
-	public WiFiDirectPeerSelectionList(Activity context, String targetComponent) {
+	public WiFiDirectPeerSelectionList(Activity context, String targetComponent, Lifecycle lifecycle) {
 		super(context);
 		this.targetComponent = targetComponent;
 		LayoutInflater.from(context)

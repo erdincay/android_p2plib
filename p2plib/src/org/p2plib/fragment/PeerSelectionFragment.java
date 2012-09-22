@@ -3,16 +3,15 @@ package org.p2plib.fragment;
 import org.p2plib.PeerConnectionTechnology;
 import org.p2plib.R;
 import org.p2plib.peer.selection.PeerSelectionTabContentFactory;
+import org.p2plib.util.Lifecycle;
+import org.p2plib.util.LifecycleImpl;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TabHost;
-import android.widget.TabWidget;
 import android.widget.TabHost.TabContentFactory;
 import android.widget.TabHost.TabSpec;
 
@@ -21,6 +20,8 @@ public class PeerSelectionFragment extends Fragment {
 	public static final String ENABLED_CONNECTION_TECHNOLOGIES_ARG = "enabledConnectionTechnologies";
 	public static final String TARGET_COMPONENT_ARG = "targetComponent";
 
+	private Lifecycle lifecycle;
+
 	private int enabledConnectionTechnologies;
 	private TabContentFactory tabContentFactory;
 	private String targetComponent;
@@ -28,6 +29,7 @@ public class PeerSelectionFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		lifecycle = new LifecycleImpl(getActivity());
 		if (getArguments() == null) {
 			enabledConnectionTechnologies = PeerConnectionTechnology.ALL;
 		} else {
@@ -37,7 +39,7 @@ public class PeerSelectionFragment extends Fragment {
 			targetComponent = getArguments().getString(TARGET_COMPONENT_ARG);
 		}
 		tabContentFactory = new PeerSelectionTabContentFactory(getActivity(),
-				targetComponent);
+				targetComponent, lifecycle);
 	}
 
 	@Override
@@ -70,5 +72,17 @@ public class PeerSelectionFragment extends Fragment {
 		}
 
 		return view;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		lifecycle.fireOnResumeEvent();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		lifecycle.fireOnPauseEvent();
 	}
 }
