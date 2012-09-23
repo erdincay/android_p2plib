@@ -32,6 +32,8 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 		lifecycle.addOnResumeListener(this);
 
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+		onResume(context);
 	}
 
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

@@ -1,4 +1,4 @@
-package org.p2plib.peer.selection.bluetooth;
+package org.p2plib.peer.selection.wifidirect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.p2plib.util.OnResumeListener;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
@@ -18,36 +19,36 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-public class BluetoothPeerSelectionList extends FrameLayout implements
-		BluetoothPeerSelectionView {
+public class WiFiDirectPeerSelectionList extends FrameLayout implements
+		WiFiDirectPeerSelectionView {
 
 	private String targetComponent;
-	private Switch blueToothSwitch;
+	private Switch wiFiDirectSwitch;
 	private TextView deviceName;
 	private ListView listView;
-	private List<BluetoothDevice> devices;
+	private List<WifiP2pDevice> devices;
 	private Activity context;
 
-	public BluetoothPeerSelectionList(Activity context, String targetComponent,
+	public WiFiDirectPeerSelectionList(Activity context, String targetComponent,
 			Lifecycle lifecycle) {
 		super(context);
-		setId(666);
+		setId(667);
 		this.context = context;
-		devices = new ArrayList<BluetoothDevice>();
+		devices = new ArrayList<WifiP2pDevice>();
 		this.targetComponent = targetComponent;
 		LayoutInflater.from(context)
 				.inflate(R.layout.peer_selection_list, this);
 
-		this.blueToothSwitch = (Switch) findViewById(R.id.peer_connection_technology_switch);
+		this.wiFiDirectSwitch = (Switch) findViewById(R.id.peer_connection_technology_switch);
 		this.deviceName = (TextView) findViewById(R.id.device_name_text_view);
 		this.listView = (ListView) findViewById(R.id.peer_list_view);
 
-		this.listView.setAdapter(new BluetoothListAdapter(devices, context));
+		this.listView.setAdapter(new WiFiDirectListAdapter(devices, context));
 
-		BluetoothPeerSelectionController controller = new BluetoothPeerSelectionController(
+		WiFiDirectPeerSelectionController controller = new WiFiDirectPeerSelectionController(
 				context, this, lifecycle);
 
-		blueToothSwitch.setOnCheckedChangeListener(controller);
+		wiFiDirectSwitch.setOnCheckedChangeListener(controller);
 
 		lifecycle.addOnResumeListener(new OnResumeListener() {
 
@@ -61,7 +62,7 @@ public class BluetoothPeerSelectionList extends FrameLayout implements
 	protected Parcelable onSaveInstanceState() {
 		Parcelable state = super.onSaveInstanceState();
 
-		SavedBluetoothPeerSelectionListState saveState = new SavedBluetoothPeerSelectionListState(
+		SavedWiFiDirectPeerSelectionListState saveState = new SavedWiFiDirectPeerSelectionListState(
 				state);
 
 		saveState.setDevices(devices);
@@ -72,10 +73,9 @@ public class BluetoothPeerSelectionList extends FrameLayout implements
 	@Override
 	protected void onRestoreInstanceState(Parcelable state) {
 
-		if (state instanceof SavedBluetoothPeerSelectionListState) {
-			SavedBluetoothPeerSelectionListState saveState = (SavedBluetoothPeerSelectionListState) state;
+		if (state instanceof SavedWiFiDirectPeerSelectionListState) {
+			SavedWiFiDirectPeerSelectionListState saveState = (SavedWiFiDirectPeerSelectionListState) state;
 			super.onRestoreInstanceState(saveState.getSuperState());
-			this.devices.clear();
 			this.devices.addAll(saveState.getDevices());
 			fireDatasetChangedEvent();
 		} else {
@@ -83,24 +83,24 @@ public class BluetoothPeerSelectionList extends FrameLayout implements
 		}
 	}
 
-	public void setBluetoothSwitchOn(boolean on) {
-		blueToothSwitch.setChecked(on);
+	public void setWiFiDirectSwitchOn(boolean on) {
+		wiFiDirectSwitch.setChecked(on);
 	}
 
-	public void setBluetoothSwitchEnabled(boolean enabled) {
-		blueToothSwitch.setEnabled(enabled);
+	public void setWiFiDirectSwitchEnabled(boolean enabled) {
+		wiFiDirectSwitch.setEnabled(enabled);
 	}
 
-	public void setBluetoothDeviceName(String name) {
+	public void setWiFiDirectDeviceName(String name) {
 		deviceName.setText(name);
 	}
 
-	public void addDevice(BluetoothDevice device) {
+	public void addDevice(WifiP2pDevice device) {
 		devices.add(device);
 		fireDatasetChangedEvent();
 	}
 
-	public void removeDevice(BluetoothDevice device) {
+	public void removeDevice(WifiP2pDevice device) {
 		devices.remove(device);
 		fireDatasetChangedEvent();
 	}
@@ -110,8 +110,8 @@ public class BluetoothPeerSelectionList extends FrameLayout implements
 		fireDatasetChangedEvent();
 	}
 
-	public boolean isDeviceInList(BluetoothDevice device) {
-		return devices.contains(device);
+	public boolean isDeviceInList(WifiP2pDevice device) {
+		return devices.indexOf(device) != -1;
 	}
 
 	private void fireDatasetChangedEvent() {
