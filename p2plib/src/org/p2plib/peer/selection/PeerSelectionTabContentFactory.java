@@ -1,6 +1,7 @@
 package org.p2plib.peer.selection;
 
 import org.p2plib.PeerConnectionTechnology;
+import org.p2plib.peer.selection.bluetooth.BluetoothPeerSelectionList;
 import org.p2plib.util.Lifecycle;
 
 import android.app.Activity;
