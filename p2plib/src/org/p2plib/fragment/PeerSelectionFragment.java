@@ -20,10 +20,13 @@ public class PeerSelectionFragment extends Fragment {
 	public static final String ENABLED_CONNECTION_TECHNOLOGIES_ARG = "enabledConnectionTechnologies";
 	public static final String TARGET_COMPONENT_ARG = "targetComponent";
 
+	public static final String TAB_KEY = "tab";
+
 	private Lifecycle lifecycle;
 
 	private int enabledConnectionTechnologies;
 	private TabContentFactory tabContentFactory;
+	private TabHost tabHost;
 	private String targetComponent;
 
 	@Override
@@ -46,9 +49,9 @@ public class PeerSelectionFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.peer_selection_fragment_tab_host,
-				null);
+				container, false);
 
-		TabHost tabHost = (TabHost) view.findViewById(android.R.id.tabhost);
+		tabHost = (TabHost) view.findViewById(android.R.id.tabhost);
 		tabHost.setup();
 
 		if (PeerConnectionTechnology.isEnabled(enabledConnectionTechnologies,
@@ -71,7 +74,17 @@ public class PeerSelectionFragment extends Fragment {
 			tabHost.addTab(bluetoothTabSpec);
 		}
 
+		if (savedInstanceState != null) {
+			tabHost.setCurrentTab(savedInstanceState.getInt(TAB_KEY));
+		}
+
 		return view;
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(TAB_KEY, tabHost.getCurrentTab());
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package org.p2plib.peer.selection;
 
-import java.util.List;
 import java.util.Set;
 
 import org.p2plib.util.Lifecycle;
@@ -33,11 +32,6 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 		lifecycle.addOnResumeListener(this);
 
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		view.setBluetoothSwitchOn(bluetoothAdapter.isEnabled());
-		view.setBluetoothDeviceName(bluetoothAdapter.getName());
-		if (bluetoothAdapter.isEnabled()) {
-			onUpdateList();
-		}
 	}
 
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -93,7 +87,9 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 				view.addDevice(device);
 			}
 		}
-		bluetoothAdapter.startDiscovery();
+		if (bluetoothAdapter.isEnabled()) {
+			bluetoothAdapter.startDiscovery();
+		}
 	}
 
 	public void onResume(Context context) {
@@ -101,9 +97,19 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 		intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 		intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
 		context.registerReceiver(this, intentFilter);
+		reloadView();
+	}
+
+	private void reloadView() {
+		view.setBluetoothSwitchOn(bluetoothAdapter.isEnabled());
+		view.setBluetoothDeviceName(bluetoothAdapter.getName());
+		if (bluetoothAdapter.isEnabled()) {
+			onUpdateList();
+		}
 	}
 
 	public void onPause(Context context) {
 		context.unregisterReceiver(this);
+		bluetoothAdapter.cancelDiscovery();
 	}
 }

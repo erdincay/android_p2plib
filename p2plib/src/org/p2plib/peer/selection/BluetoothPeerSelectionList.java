@@ -5,12 +5,13 @@ import java.util.List;
 
 import org.p2plib.R;
 import org.p2plib.util.Lifecycle;
+import org.p2plib.util.OnResumeListener;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -25,10 +26,13 @@ public class BluetoothPeerSelectionList extends FrameLayout implements
 	private TextView deviceName;
 	private ListView listView;
 	private List<BluetoothDevice> devices;
+	private Activity context;
 
 	public BluetoothPeerSelectionList(Activity context, String targetComponent,
 			Lifecycle lifecycle) {
 		super(context);
+		setId(666);
+		this.context = context;
 		devices = new ArrayList<BluetoothDevice>();
 		this.targetComponent = targetComponent;
 		LayoutInflater.from(context)
@@ -44,11 +48,38 @@ public class BluetoothPeerSelectionList extends FrameLayout implements
 				context, this, lifecycle);
 
 		blueToothSwitch.setOnCheckedChangeListener(controller);
+
+		lifecycle.addOnResumeListener(new OnResumeListener() {
+
+			public void onResume(Context context) {
+				fireDatasetChangedEvent();
+			}
+		});
 	}
 
 	@Override
-	protected void onAttachedToWindow() {
-		super.onAttachedToWindow();
+	protected Parcelable onSaveInstanceState() {
+		Parcelable state = super.onSaveInstanceState();
+
+		SavedBluetoothPeerSelectionListState saveState = new SavedBluetoothPeerSelectionListState(
+				state);
+
+		saveState.setDevices(devices);
+
+		return saveState;
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Parcelable state) {
+
+		if (state instanceof SavedBluetoothPeerSelectionListState) {
+			SavedBluetoothPeerSelectionListState saveState = (SavedBluetoothPeerSelectionListState) state;
+			super.onRestoreInstanceState(saveState.getSuperState());
+			this.devices.addAll(saveState.getDevices());
+			fireDatasetChangedEvent();
+		} else {
+			super.onRestoreInstanceState(state);
+		}
 	}
 
 	public void setBluetoothSwitchOn(boolean on) {
@@ -83,7 +114,14 @@ public class BluetoothPeerSelectionList extends FrameLayout implements
 	}
 
 	private void fireDatasetChangedEvent() {
-		((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
-	}
+		if (listView != null) {
+			context.runOnUiThread(new Runnable() {
 
+				public void run() {
+					((BaseAdapter) listView.getAdapter())
+							.notifyDataSetChanged();
+				}
+			});
+		}
+	}
 }

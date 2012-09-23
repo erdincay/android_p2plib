@@ -3,22 +3,29 @@ package org.p2plib.example;
 import org.p2plib.fragment.PeerSelectionFragment;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.Menu;
 
 public class MainActivity extends Activity {
 
+	private Fragment peerSelectionFragment;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		FragmentTransaction fragmentTransaction = getFragmentManager()
-				.beginTransaction();
-		fragmentTransaction.add(R.id.fragment_wrapper,
-				new PeerSelectionFragment());
-		fragmentTransaction.commit();
+		if (savedInstanceState == null) {
+			peerSelectionFragment = new PeerSelectionFragment();
+
+			FragmentTransaction fragmentTransaction = getFragmentManager()
+					.beginTransaction();
+			fragmentTransaction.add(R.id.fragment_wrapper,
+					peerSelectionFragment);
+			fragmentTransaction.commit();
+		}
 	}
 
 	@Override
