@@ -1,18 +1,21 @@
 package org.p2plib.peer.selection;
 
+import java.util.List;
+import java.util.Set;
+
 import org.p2plib.util.Lifecycle;
 import org.p2plib.util.OnPauseListener;
 import org.p2plib.util.OnResumeListener;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.Toast;
 
 public class BluetoothPeerSelectionController extends BroadcastReceiver
 		implements OnCheckedChangeListener, OnPauseListener, OnResumeListener {
@@ -31,7 +34,10 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		view.setBluetoothSwitchOn(bluetoothAdapter.isEnabled());
-
+		view.setBluetoothDeviceName(bluetoothAdapter.getName());
+		if (bluetoothAdapter.isEnabled()) {
+			onUpdateList();
+		}
 	}
 
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -58,6 +64,7 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 		case BluetoothAdapter.STATE_ON:
 			view.setBluetoothSwitchOn(true);
 			view.setBluetoothSwitchEnabled(true);
+			onUpdateList();
 			break;
 
 		case BluetoothAdapter.STATE_TURNING_ON:
@@ -66,6 +73,16 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 
 		default:
 			break;
+		}
+	}
+
+	public void onUpdateList() {
+		Set<BluetoothDevice> bondedDevices = bluetoothAdapter
+				.getBondedDevices();
+		for (BluetoothDevice device : bondedDevices) {
+			if (!view.isDeviceInList(device)) {
+				view.addDevice(device);
+			}
 		}
 	}
 
