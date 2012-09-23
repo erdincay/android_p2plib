@@ -4,4 +4,6 @@
     <string name="bluetooth">Bluetooth</string>
     <string name="wifi_direct">Wi-Fi Direct</string>
     <string name="available_devices">Available Devices</string>
+    <string name="paired">Paired</string>
+    <string name="pairing">Pairing...</string>
 </resources>

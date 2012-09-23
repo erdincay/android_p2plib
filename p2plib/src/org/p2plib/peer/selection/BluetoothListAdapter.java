@@ -2,6 +2,8 @@ package org.p2plib.peer.selection;
 
 import java.util.List;
 
+import org.p2plib.R;
+
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -36,13 +38,31 @@ public class BluetoothListAdapter extends BaseAdapter {
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(android.R.layout.simple_list_item_1,
+			convertView = inflater.inflate(android.R.layout.simple_list_item_2,
 					parent, false);
 		}
 
+		BluetoothDevice device = devices.get(position);
+
 		TextView deviceName = (TextView) convertView
 				.findViewById(android.R.id.text1);
-		deviceName.setText(devices.get(position).getName());
+		deviceName.setText(device.getName());
+
+		TextView status = (TextView) convertView
+				.findViewById(android.R.id.text2);
+		switch (device.getBondState()) {
+		case BluetoothDevice.BOND_BONDING:
+			status.setText(R.string.pairing);
+			break;
+
+		case BluetoothDevice.BOND_BONDED:
+			status.setText(R.string.paired);
+			break;
+
+		default:
+			status.setText("");
+			break;
+		}
 
 		return convertView;
 	}
