@@ -50,29 +50,38 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		int state = intent.getExtras().getInt(BluetoothAdapter.EXTRA_STATE);
-		switch (state) {
-		case BluetoothAdapter.STATE_OFF:
-			view.setBluetoothSwitchOn(false);
-			view.setBluetoothSwitchEnabled(true);
-			break;
+		if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+			int state = intent.getExtras().getInt(BluetoothAdapter.EXTRA_STATE);
+			switch (state) {
+			case BluetoothAdapter.STATE_OFF:
+				view.setBluetoothSwitchOn(false);
+				view.setBluetoothSwitchEnabled(true);
+				break;
 
-		case BluetoothAdapter.STATE_TURNING_OFF:
-			view.setBluetoothSwitchEnabled(false);
-			break;
+			case BluetoothAdapter.STATE_TURNING_OFF:
+				view.setBluetoothSwitchEnabled(false);
+				break;
 
-		case BluetoothAdapter.STATE_ON:
-			view.setBluetoothSwitchOn(true);
-			view.setBluetoothSwitchEnabled(true);
-			onUpdateList();
-			break;
+			case BluetoothAdapter.STATE_ON:
+				view.setBluetoothSwitchOn(true);
+				view.setBluetoothSwitchEnabled(true);
+				onUpdateList();
+				break;
 
-		case BluetoothAdapter.STATE_TURNING_ON:
-			view.setBluetoothSwitchEnabled(false);
-			break;
+			case BluetoothAdapter.STATE_TURNING_ON:
+				view.setBluetoothSwitchEnabled(false);
+				break;
 
-		default:
-			break;
+			default:
+				break;
+			}
+		}
+		if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
+			BluetoothDevice device = intent
+					.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+			if (!view.isDeviceInList(device)) {
+				view.addDevice(device);
+			}
 		}
 	}
 
@@ -84,11 +93,13 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 				view.addDevice(device);
 			}
 		}
+		bluetoothAdapter.startDiscovery();
 	}
 
 	public void onResume(Context context) {
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+		intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
 		context.registerReceiver(this, intentFilter);
 	}
 
