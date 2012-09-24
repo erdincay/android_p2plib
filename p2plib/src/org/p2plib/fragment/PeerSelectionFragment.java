@@ -2,6 +2,7 @@ package org.p2plib.fragment;
 
 import org.p2plib.PeerConnectionTechnology;
 import org.p2plib.R;
+import org.p2plib.peer.selection.PeerSelectionEventBus;
 import org.p2plib.peer.selection.PeerSelectionTabContentFactory;
 import org.p2plib.util.Lifecycle;
 import org.p2plib.util.LifecycleImpl;
@@ -9,6 +10,9 @@ import org.p2plib.util.LifecycleImpl;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TabHost;
@@ -43,6 +47,7 @@ public class PeerSelectionFragment extends Fragment {
 		}
 		tabContentFactory = new PeerSelectionTabContentFactory(getActivity(),
 				targetComponent, lifecycle);
+		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -97,5 +102,21 @@ public class PeerSelectionFragment extends Fragment {
 	public void onPause() {
 		super.onPause();
 		lifecycle.fireOnPauseEvent();
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.peer_selection_fragment_menu, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		PeerSelectionEventBus eventBus = (PeerSelectionEventBus) tabHost
+				.getTabContentView().getChildAt(tabHost.getCurrentTab());
+		if (item.getItemId() == R.id.reload_peers) {
+			eventBus.refreshPeers();
+		}
+		return super.onOptionsItemSelected(item);
 	}
 }

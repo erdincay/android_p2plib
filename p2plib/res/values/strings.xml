@@ -1,9 +1,12 @@
 <resources>
+
     <string name="app_name">p2plib</string>
     <string name="undefined_text">(undefined)</string>
     <string name="bluetooth">Bluetooth</string>
     <string name="wifi_direct">Wi-Fi Direct</string>
     <string name="available_devices">Available Devices</string>
     <string name="paired">Paired</string>
-    <string name="pairing">Pairing...</string>
+    <string name="pairing">Pairing&#8230;</string>
+    <string name="reload_peers">Search for devices</string>
+
 </resources>

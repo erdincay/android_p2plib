@@ -16,4 +16,6 @@ public interface BluetoothPeerSelectionView {
 	boolean isDeviceInList(BluetoothDevice device);
 
 	void clearDevices();
+
+	void setDiscoveryInProgress(boolean isInProgress);
 }

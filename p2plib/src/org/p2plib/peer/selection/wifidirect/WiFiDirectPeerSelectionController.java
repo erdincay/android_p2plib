@@ -5,10 +5,14 @@ import org.p2plib.util.OnPauseListener;
 import org.p2plib.util.OnResumeListener;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
+import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -21,12 +25,13 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 		implements OnCheckedChangeListener, OnPauseListener, OnResumeListener,
-		PeerListListener {
+		PeerListListener, WiFiDirectPeerSelectionListEventListener {
 
 	private WiFiDirectPeerSelectionView view;
 	private Activity context;
 	private WifiP2pManager wifiP2pManager;
 	private Channel channel;
+	private WifiManager wifiManager;
 
 	public WiFiDirectPeerSelectionController(Activity context,
 			WiFiDirectPeerSelectionView view, Lifecycle lifecycle) {
@@ -41,17 +46,15 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 		channel = wifiP2pManager.initialize(context, context.getMainLooper(),
 				null);
 
+		wifiManager = (WifiManager) context
+				.getSystemService(Context.WIFI_SERVICE);
+
 		onUpdateList();
 		onResume(context);
 	}
 
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		// TODO
-		// if (isChecked) {
-		// bluetoothAdapter.enable();
-		// } else {
-		// bluetoothAdapter.disable();
-		// }
+		wifiManager.setWifiEnabled(isChecked);
 	}
 
 	@Override
@@ -71,17 +74,47 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 			WifiP2pDevice device = (WifiP2pDevice) intent
 					.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
 			view.setWiFiDirectDeviceName(device.deviceName);
+		} else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
+			NetworkInfo networkInfo = intent
+					.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+			if (networkInfo != null) {
+				switch (networkInfo.getState()) {
+				case DISCONNECTED:
+					view.setWiFiDirectSwitchOn(false);
+					view.setWiFiDirectSwitchEnabled(true);
+					break;
+
+				case DISCONNECTING:
+					view.setWiFiDirectSwitchEnabled(false);
+					break;
+
+				case CONNECTED:
+					view.setWiFiDirectSwitchOn(true);
+					view.setWiFiDirectSwitchEnabled(true);
+					onUpdateList();
+					break;
+
+				case CONNECTING:
+					view.setWiFiDirectSwitchEnabled(false);
+					break;
+
+				default:
+					break;
+				}
+			}
 		}
 	}
 
 	public void onUpdateList() {
+		view.setDiscoveryInProgress(true);
 		wifiP2pManager.discoverPeers(channel, new ActionListener() {
 
 			public void onSuccess() {
-				Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+				view.setDiscoveryInProgress(false);
 			}
 
 			public void onFailure(int reason) {
+				view.setDiscoveryInProgress(false);
 				Toast.makeText(context, "Failed: " + reason, Toast.LENGTH_SHORT)
 						.show();
 			}
@@ -96,13 +129,12 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 				.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 		intentFilter
 				.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
 		context.registerReceiver(this, intentFilter);
 	}
 
 	public void onPause(Context context) {
 		context.unregisterReceiver(this);
-		// TODO
-		// bluetoothAdapter.cancelDiscovery();
 	}
 
 	public void onPeersAvailable(WifiP2pDeviceList peers) {
@@ -111,5 +143,9 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 				view.addDevice(device);
 			}
 		}
+	}
+
+	public void onRefresh() {
+		onUpdateList();
 	}
 }

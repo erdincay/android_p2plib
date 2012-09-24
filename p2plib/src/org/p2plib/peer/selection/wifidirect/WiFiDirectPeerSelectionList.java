@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.p2plib.R;
+import org.p2plib.peer.selection.PeerSelectionEventBus;
 import org.p2plib.util.Lifecycle;
 import org.p2plib.util.OnResumeListener;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Parcelable;
@@ -16,11 +16,12 @@ import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
 public class WiFiDirectPeerSelectionList extends FrameLayout implements
-		WiFiDirectPeerSelectionView {
+		WiFiDirectPeerSelectionView, PeerSelectionEventBus {
 
 	private String targetComponent;
 	private Switch wiFiDirectSwitch;
@@ -28,9 +29,11 @@ public class WiFiDirectPeerSelectionList extends FrameLayout implements
 	private ListView listView;
 	private List<WifiP2pDevice> devices;
 	private Activity context;
+	private WiFiDirectPeerSelectionListEventListener listener;
+	private ProgressBar progressIndicator;
 
-	public WiFiDirectPeerSelectionList(Activity context, String targetComponent,
-			Lifecycle lifecycle) {
+	public WiFiDirectPeerSelectionList(Activity context,
+			String targetComponent, Lifecycle lifecycle) {
 		super(context);
 		setId(667);
 		this.context = context;
@@ -42,6 +45,7 @@ public class WiFiDirectPeerSelectionList extends FrameLayout implements
 		this.wiFiDirectSwitch = (Switch) findViewById(R.id.peer_connection_technology_switch);
 		this.deviceName = (TextView) findViewById(R.id.device_name_text_view);
 		this.listView = (ListView) findViewById(R.id.peer_list_view);
+		this.progressIndicator = (ProgressBar) findViewById(R.id.scanning_progress);
 
 		this.listView.setAdapter(new WiFiDirectListAdapter(devices, context));
 
@@ -49,6 +53,8 @@ public class WiFiDirectPeerSelectionList extends FrameLayout implements
 				context, this, lifecycle);
 
 		wiFiDirectSwitch.setOnCheckedChangeListener(controller);
+
+		listener = controller;
 
 		lifecycle.addOnResumeListener(new OnResumeListener() {
 
@@ -123,6 +129,18 @@ public class WiFiDirectPeerSelectionList extends FrameLayout implements
 							.notifyDataSetChanged();
 				}
 			});
+		}
+	}
+
+	public void refreshPeers() {
+		listener.onRefresh();
+	}
+
+	public void setDiscoveryInProgress(boolean isInProgress) {
+		if (isInProgress) {
+			progressIndicator.setVisibility(VISIBLE);
+		} else {
+			progressIndicator.setVisibility(INVISIBLE);
 		}
 	}
 }

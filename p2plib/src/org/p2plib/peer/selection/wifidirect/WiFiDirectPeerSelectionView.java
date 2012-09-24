@@ -16,4 +16,6 @@ public interface WiFiDirectPeerSelectionView {
 	boolean isDeviceInList(WifiP2pDevice device);
 
 	void clearDevices();
+
+	void setDiscoveryInProgress(boolean isInProgress);
 }

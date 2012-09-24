@@ -40,15 +40,19 @@ public class WiFiDirectListAdapter extends BaseAdapter {
 					parent, false);
 		}
 
+		WifiP2pDevice device = devices.get(position);
+
 		TextView deviceName = (TextView) convertView
 				.findViewById(android.R.id.text1);
+		deviceName.setText(device.deviceName);
 
 		TextView status = (TextView) convertView
 				.findViewById(android.R.id.text2);
+		status.setText(device.deviceAddress);
 
 		return convertView;
 	}
-	
+
 	@Override
 	public void notifyDataSetChanged() {
 		super.notifyDataSetChanged();

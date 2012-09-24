@@ -17,7 +17,8 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class BluetoothPeerSelectionController extends BroadcastReceiver
-		implements OnCheckedChangeListener, OnPauseListener, OnResumeListener {
+		implements OnCheckedChangeListener, OnPauseListener, OnResumeListener,
+		BluetoothPeerSelectionListEventListener {
 
 	private BluetoothPeerSelectionView view;
 	private Activity context;
@@ -71,13 +72,18 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 			default:
 				break;
 			}
-		}
-		if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
+		} else if (intent.getAction().equals(BluetoothDevice.ACTION_FOUND)) {
 			BluetoothDevice device = intent
 					.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 			if (!view.isDeviceInList(device)) {
 				view.addDevice(device);
 			}
+		} else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(intent
+				.getAction())) {
+			view.setDiscoveryInProgress(true);
+		} else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(intent
+				.getAction())) {
+			view.setDiscoveryInProgress(false);
 		}
 	}
 
@@ -97,6 +103,8 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 	public void onResume(Context context) {
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+		intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+		intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
 		intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
 		context.registerReceiver(this, intentFilter);
 		reloadView();
@@ -113,5 +121,9 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 	public void onPause(Context context) {
 		context.unregisterReceiver(this);
 		bluetoothAdapter.cancelDiscovery();
+	}
+
+	public void onRefresh() {
+		reloadView();
 	}
 }

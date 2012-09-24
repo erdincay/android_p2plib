@@ -25,16 +25,34 @@
             android:layout_alignParentRight="true" />
     </RelativeLayout>
 
-    <TextView
-        style="?android:attr/listSeparatorTextViewStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/available_devices" />
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        style="?android:attr/listSeparatorTextViewStyle" >
+
+        <TextView
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@null"
+            android:paddingLeft="0dip"
+            android:text="@string/available_devices" />
+
+        <ProgressBar
+            android:id="@+id/scanning_progress"
+            style="?android:attr/progressBarStyleSmallTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="?android:attr/scrollbarSize"
+            android:visibility="invisible" />
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/peer_list_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="fill_parent" />
 
 </LinearLayout>
