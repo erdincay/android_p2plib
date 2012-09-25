@@ -87,7 +87,7 @@ public class BluetoothPeerSelectionController extends BroadcastReceiver
 		}
 	}
 
-	public void onUpdateList() {
+	private void onUpdateList() {
 		Set<BluetoothDevice> bondedDevices = bluetoothAdapter
 				.getBondedDevices();
 		for (BluetoothDevice device : bondedDevices) {

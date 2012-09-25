@@ -19,6 +19,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
+import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -49,7 +50,6 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 		wifiManager = (WifiManager) context
 				.getSystemService(Context.WIFI_SERVICE);
 
-		onUpdateList();
 		onResume(context);
 	}
 
@@ -75,37 +75,30 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 					.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
 			view.setWiFiDirectDeviceName(device.deviceName);
 		} else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
-			NetworkInfo networkInfo = intent
-					.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-			if (networkInfo != null) {
-				switch (networkInfo.getState()) {
-				case DISCONNECTED:
-					view.setWiFiDirectSwitchOn(false);
-					view.setWiFiDirectSwitchEnabled(true);
-					break;
-
-				case DISCONNECTING:
-					view.setWiFiDirectSwitchEnabled(false);
-					break;
-
-				case CONNECTED:
-					view.setWiFiDirectSwitchOn(true);
-					view.setWiFiDirectSwitchEnabled(true);
-					onUpdateList();
-					break;
-
-				case CONNECTING:
-					view.setWiFiDirectSwitchEnabled(false);
-					break;
-
-				default:
-					break;
-				}
+			int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE,
+					WifiManager.WIFI_STATE_UNKNOWN);
+			switch (wifiState) {
+			case WifiManager.WIFI_STATE_DISABLED:
+				view.setWiFiDirectSwitchEnabled(false);
+				view.setWiFiDirectSwitchEnabled(true);
+				break;
+			case WifiManager.WIFI_STATE_DISABLING:
+				view.setWiFiDirectSwitchEnabled(false);
+				break;
+			case WifiManager.WIFI_STATE_ENABLED:
+				view.setWiFiDirectSwitchEnabled(true);
+				view.setWiFiDirectSwitchEnabled(true);
+				break;
+			case WifiManager.WIFI_STATE_ENABLING:
+				view.setWiFiDirectSwitchEnabled(false);
+				break;
+			default:
+				break;
 			}
 		}
 	}
 
-	public void onUpdateList() {
+	private void onUpdateList() {
 		view.setDiscoveryInProgress(true);
 		wifiP2pManager.discoverPeers(channel, new ActionListener() {
 
@@ -121,6 +114,11 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 		});
 	}
 
+	private void reloadView() {
+		view.setWiFiDirectSwitchOn(wifiManager.isWifiEnabled());
+		onUpdateList();
+	}
+
 	public void onResume(Context context) {
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -131,6 +129,7 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 				.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
 		context.registerReceiver(this, intentFilter);
+		reloadView();
 	}
 
 	public void onPause(Context context) {
@@ -146,6 +145,6 @@ public class WiFiDirectPeerSelectionController extends BroadcastReceiver
 	}
 
 	public void onRefresh() {
-		onUpdateList();
+		reloadView();
 	}
 }
